@@ -1,7 +1,8 @@
 package game;
 import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -13,63 +14,89 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-
+public class Main extends Application {
 	
 	private ImageView background = null;
 	private ImageView flappy = null;
 	private Button button = null;
 	private Group root = null;
 	
-    private void addActionEventHandler(){
+    private void addActionEventHandler() {
+    	
     	button.setOnAction(new EventHandler<ActionEvent>() {
-    		TranslateTransition tt = new TranslateTransition(Duration.millis(1500), flappy);
+    		
     		@Override
     		public void handle(ActionEvent event) {
-    			tt.setToY(176);
-    			tt.setCycleCount(Timeline.INDEFINITE);
-    			tt.setInterpolator(Interpolator.EASE_IN);
-    			tt.play();
+    			
+    			Timeline timeline = new Timeline();
+    			final double height = 200;
+    			final double duration = Math.sqrt(height/4.8);
+    			KeyValue kv = new KeyValue(flappy.translateYProperty(), 400, new Interpolator() {
+    				
+    				protected double curve(double t) {
+    					
+    					double time = t * duration;
+    					double dist = 0; //TODO
+    					double elapsed = dist / height;
+    					return elapsed;
+    					
+    				}
+    				
+    			}
+    			);
+    			KeyFrame moveFlappy = new KeyFrame(Duration.seconds(duration), kv);
+    			timeline.getKeyFrames().add(moveFlappy);
+    			timeline.setAutoReverse(false);
+    			timeline.play();
+    			
     		}
-		});
+    		
+		}
+    	
+    	);
+    	
     }
     
     private void addMouseEventHandler() {
     	
+    	root.onMouseClickedProperty().set(new EventHandler<MouseEvent>() {
+    		
+    		
+            @Override
+            public void handle(MouseEvent event) {
+            	
+            	
+            	
+            }
+        }
     	
+    	);
     	
-    }	
-	
+    }
+    
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		//Create a Group 
+		
 		root = new Group();
 
-		//TODO 1: add background
 		background = new ImageView("background.png");
 		
-		
-		//TODO 2: add Flappy
 		flappy = new ImageView("flappy.png");
 		flappy.xProperty().set(190);
 		flappy.yProperty().set(200);
 		
-		//TODO 3: add Button
 		button = new Button("Start!");
 		button.layoutXProperty().set(175);
 		
-		//Add controls
 		root.getChildren().add(background);
 		root.getChildren().add(flappy);
 		root.getChildren().add(button);
 		
-		//TODO 4: add action handler to the button
 		addActionEventHandler();
 
-		//TODO 5: add mouse handler to the scene
 		addMouseEventHandler();
 		
 		
-		//Create scene and add to stage
 		Scene scene = new Scene(root, 400, 400);
 		primaryStage.setScene(scene);
 		primaryStage.show();
